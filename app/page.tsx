@@ -1,5 +1,6 @@
-import Characters from "../components/Characters";
+import Animals from "@/components/Animals";
+// import Characters from "../components/Characters";
 
 export default function CSR() {
-  return <Characters />;
+  return <Animals />; //<Characters />;
 }
