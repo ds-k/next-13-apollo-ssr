@@ -16,18 +16,33 @@ import { getRequestStorage } from "./localStorage";
 
 let apolloClient: ApolloClient<NormalizedCacheObject> | undefined;
 
+function createIsomorphLink() {
+  if (typeof window === "undefined") {
+    const { SchemaLink: schemaLink } = require("@apollo/client/link/schema");
+    const { schema } = require("../pages/api/graphql");
+    return new schemaLink({ schema });
+  } else {
+    const { HttpLink: httpLink } = require("@apollo/client/link/http");
+    return new httpLink({
+      uri: "/api/graphql",
+      credentials: "same-origin",
+    });
+  }
+}
+
 const createApolloClient = () => {
   return new ApolloClient({
     ssrMode: typeof window === "undefined",
-    link: new HttpLink({
-      uri: `${process.env.NEXT_PUBLIC_API_URL}/graphql`, // Server URL (must be absolute)
-      credentials: "include", // Additional fetch() options like `credentials` or `headers`
-      headers:
-        typeof window === "undefined"
-          ? {} // No need to set anything here because we use apolloClient.server on SSR,
-          : // although we still need to check if window is undefined because of Next.js
-            { authorization: getCookies(document.cookie).token }, // CSR
-    }),
+    // link: new HttpLink({
+    //   uri: `${process.env.NEXT_PUBLIC_API_URL}/graphql`, // Server URL (must be absolute)
+    //   credentials: "include", // Additional fetch() options like `credentials` or `headers`
+    //   headers:
+    //     typeof window === "undefined"
+    //       ? {} // No need to set anything here because we use apolloClient.server on SSR,
+    //       : // although we still need to check if window is undefined because of Next.js
+    //         { authorization: getCookies(document.cookie).token }, // CSR
+    // }),
+    link: createIsomorphLink(),
     cache: new InMemoryCache({
       // typePolicies is not required to use Apollo with Next.js - only for doing pagination.
       typePolicies: {
