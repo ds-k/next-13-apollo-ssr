@@ -1,9 +1,9 @@
-import { CHARACTERS_QUERY } from "@/graphql/queries/characters";
 import { initializeApollo } from "@/lib/apolloClient";
 import { cookies } from "next/headers";
 import Apollo from "@/providers/Apollo";
 import Link from "next/link";
 import { getRequestStorage } from "@/lib/localStorage";
+import { GET_ANIMALS } from "@/graphql/queries/animals";
 
 export default async function SSRLayout({
   children,
@@ -18,7 +18,7 @@ export default async function SSRLayout({
     },
   });
   // 쿼리가 서버에서 실행되고 결과가 requestStorage에 유지됩니다.
-  await apolloClient.query({ query: CHARACTERS_QUERY });
+  await apolloClient.query({ query: GET_ANIMALS });
   return (
     <Apollo apolloState={JSON.stringify(getRequestStorage().apolloState ?? {})}>
       <Link href="/">Go to CSR</Link>
